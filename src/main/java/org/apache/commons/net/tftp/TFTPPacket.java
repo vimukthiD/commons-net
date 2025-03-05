@@ -105,6 +105,9 @@ public abstract class TFTPPacket {
         case ACKNOWLEDGEMENT:
             packet = new TFTPAckPacket(datagram);
             break;
+        case OACK:
+            packet = new TFTPOptionsAckPacket(datagram);
+            break;
         case ERROR:
             packet = new TFTPErrorPacket(datagram);
             break;

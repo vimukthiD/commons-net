@@ -35,6 +35,40 @@ public final class TFTPOptionsAckPacket extends TFTPPacket {
 
     private final Map<String, String> options;
 
+    public TFTPOptionsAckPacket(final DatagramPacket datagram) throws TFTPPacketException {
+        super(OACK, datagram.getAddress(), datagram.getPort());
+        this.options = new HashMap<>();
+        final byte[] data;
+
+        data = datagram.getData();
+
+        if (getType() != data[1]) {
+            throw new TFTPPacketException("TFTP operator code does not match type.");
+        }
+
+        final int length = datagram.getLength();
+        int index = 2;
+        while (index < length) {
+            int start = index;
+            for (; data[index] != 0; ++index) {
+                if (index >= length) {
+                    throw new TFTPPacketException("Invalid option format");
+                }
+            }
+            final String option = new String(data, start, index - start, StandardCharsets.US_ASCII);
+            ++index;
+            start = index;
+            for (; data[index] != 0; ++index) {
+                if (index >= length) {
+                    throw new TFTPPacketException("Invalid option format");
+                }
+            }
+            final String octets = new String(data, start, index - start, StandardCharsets.US_ASCII);
+            this.options.put(option, octets);
+            ++index;
+        }
+    }
+
     /**
      * Constructs an OACK packet informing which options are accepted.
      *
